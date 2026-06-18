@@ -233,9 +233,13 @@ int gui_savescreenshotas(lua_State* L) {
         screenshotinitialized = true;
         create_ntsc_palette();
     }
-    screenshotpending = true;
     const char* path = luaL_checkstring(L, 1);
-    strncpy(screenshotpath, path, 0x2000);
+    if (strlen(path) >= sizeof(screenshotpath)) {
+        return luaL_error(L, "Screenshot path is too long");
+    }
+    strncpy(screenshotpath, path, sizeof(screenshotpath) - 1);
+    screenshotpath[sizeof(screenshotpath) - 1] = '\0';
+    screenshotpending = true;
     return 0;
 }
 
