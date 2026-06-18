@@ -1,27 +1,23 @@
 #include "../nesl.h"
 
+static const char* SAVESTATE_MT = "nesl.savestate";
+
 int savestate_object(lua_State* L) {
     Nes_State* ss = new (lua_newuserdata(L, sizeof(Nes_State))) Nes_State();
+    luaL_getmetatable(L, SAVESTATE_MT);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
 int savestate_save(lua_State* L) {
-    Nes_State* ss = (Nes_State*)lua_touserdata(L, 1);
-    if (!ss) {
-        luaL_error(L, "Invalid savestate object");
-        return 0;
-    }
+    Nes_State* ss = (Nes_State*)luaL_checkudata(L, 1, SAVESTATE_MT);
     callhook(CALL_BEFORESAVE);
     NES->save_state(ss);
     return 0;
 }
 
 int savestate_load(lua_State* L) {
-    Nes_State* ss = (Nes_State*)lua_touserdata(L, 1);
-    if (!ss) {
-        luaL_error(L, "Invalid savestate object");
-        return 0;
-    }
+    Nes_State* ss = (Nes_State*)luaL_checkudata(L, 1, SAVESTATE_MT);
     NES->load_state(*ss);
     callhook(CALL_AFTERLOAD);
     return 0;
@@ -50,4 +46,6 @@ const struct luaL_reg savestatelib[] = {
 
 void savestatelib_register(lua_State* L) {
     luaL_register(L, "savestate", savestatelib);
+    luaL_newmetatable(L, SAVESTATE_MT);
+    lua_pop(L, 1);
 }
