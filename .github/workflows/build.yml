@@ -1,10 +1,8 @@
-name: "Windows build"
+name: "Build"
 on: push
 jobs:
   win-build:
     runs-on: windows-2022
-    env:
-      VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - uses: actions/checkout@v6
       - uses: ilammy/msvc-dev-cmd@v1
@@ -19,5 +17,24 @@ jobs:
       - name: upload
         uses: actions/upload-artifact@v6
         with:
-          name: nesl
+          name: nesl-windows-x64
           path: ${{github.workspace}}/build/Release/nesl.exe
+
+  linux-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: configure
+        run: cmake -G Ninja --preset release -S . -B build/Release
+      - name: build
+        working-directory: ${{github.workspace}}/build/Release
+        run: cmake --build .
+      - name: run regression tests
+        run: bash testing/run_tests.sh
+      - name: upload
+        uses: actions/upload-artifact@v6
+        with:
+          name: nesl-linux-x64
+          path: ${{github.workspace}}/build/Release/nesl
