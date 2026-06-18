@@ -13,7 +13,6 @@ extern "C" {
     #define mkdir(s) mkdir(s, 0700)
 #endif
 
-#include <unistd.h>
 #include <list>
 
 #define BITMAP_WIDTH 256
