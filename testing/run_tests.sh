@@ -36,6 +36,7 @@ TESTS=(
     "test_screenshot_long_path.lua"
     "test_rom_load_oob_boundary.lua"
     "test_loadines_rejects_zero_prg.lua"
+    "test_rom_filename_and_input_get.lua"
 )
 
 for t in "${TESTS[@]}"; do

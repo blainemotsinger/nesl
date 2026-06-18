@@ -2,6 +2,7 @@
 #include "./lua_bitops.cpp"
 #include "./nesl/signal_handler.h"
 #include <fstream>
+#include <string.h>
 #ifdef WIN32
     #include <direct.h>
 #else
@@ -82,6 +83,26 @@ int loadRomFile(const char* path) {
     fread(romData, 1, st.st_size, f);
     romData[st.st_size] = 0;
     fclose(f);
+
+    // Record the basename of the path for rom.getfilename(). Use a
+    // bounded copy to avoid the 0x2000-byte buffer ever being
+    // overflowed; truncate if the path is longer than the buffer.
+    const char* base = strrchr(path, '/');
+#ifdef WIN32
+    if (base == NULL) base = strrchr(path, '\\');
+#endif
+    if (base != NULL) {
+        base += 1;
+    } else {
+        base = path;
+    }
+    size_t base_len = strlen(base);
+    if (base_len >= sizeof(romFileName)) {
+        base_len = sizeof(romFileName) - 1;
+    }
+    memcpy(romFileName, base, base_len);
+    romFileName[base_len] = '\0';
+
     return 0;
 }
 

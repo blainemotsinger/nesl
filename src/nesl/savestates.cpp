@@ -2,6 +2,16 @@
 
 static const char* SAVESTATE_MT = "nesl.savestate";
 
+static int savestate_gc(lua_State* L) {
+    // Nes_State is POD (no owned resources, no user-defined destructor),
+    // so this call is currently a no-op. We still invoke the destructor
+    // explicitly so that if Nes_State ever grows a real destructor, the
+    // GC will pick it up automatically without needing a code change here.
+    Nes_State* ss = (Nes_State*)lua_touserdata(L, 1);
+    ss->~Nes_State();
+    return 0;
+}
+
 int savestate_object(lua_State* L) {
     Nes_State* ss = new (lua_newuserdata(L, sizeof(Nes_State))) Nes_State();
     luaL_getmetatable(L, SAVESTATE_MT);
@@ -47,5 +57,7 @@ const struct luaL_reg savestatelib[] = {
 void savestatelib_register(lua_State* L) {
     luaL_register(L, "savestate", savestatelib);
     luaL_newmetatable(L, SAVESTATE_MT);
+    lua_pushcfunction(L, savestate_gc);
+    lua_setfield(L, -2, "__gc");
     lua_pop(L, 1);
 }
