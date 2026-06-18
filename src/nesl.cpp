@@ -1,5 +1,6 @@
 #include "nesl.h"
 #include "./lua_bitops.cpp"
+#include "./nesl/signal_handler.h"
 #include <fstream>
 #ifdef WIN32
     #include <direct.h>
@@ -117,6 +118,7 @@ void nesl_terminate(void) {
 
 int main(int argc, char** argv) {
     signal(SIGINT, sigint);
+    nesl_install_signal_handlers();
 
     romData[0] = 0;
     int err;
