@@ -70,8 +70,9 @@ int loadRomFile(const char* path) {
     int err = stat(path, &st);
     if (err) return err;
 
-    // rom file size must be less than 10MB
-    if (st.st_size > sizeof(romData)) return 1;
+    // rom file size must be less than 10MB; the +1 sentinel below needs one
+    // byte of headroom in romData[].
+    if (st.st_size >= (long)sizeof(romData)) return 1;
     romDataLength = st.st_size;
 
     FILE *f = fopen(path, "rb");
