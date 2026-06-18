@@ -88,6 +88,7 @@ int emu_getdir(lua_State* L) {
 
 int emu_print(lua_State* L) {
     const char* v = lua_tostring(L, 1);
+    if (v == NULL) return 0;
     puts(v);
     return 0;
 }
